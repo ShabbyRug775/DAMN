@@ -1,0 +1,32 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/etTexto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Ingresa un texto" />
+
+    <Button
+        android:id="@+id/btnCodificar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Codificar (ROT13)" />
+
+    <Button
+        android:id="@+id/btnDescodificar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Descodificar (ROT13)" />
+
+    <TextView
+        android:id="@+id/tvResultado"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Resultado:"
+        android:textSize="18sp" />
+</LinearLayout>

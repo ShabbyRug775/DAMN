@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/statusTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Estado: Desconectado"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Control de LED"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginTop="32dp"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/ledStatusTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="LED: Apagado"
+        android:textSize="36sp"
+        android:gravity="center"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/ledOnButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Encender LED"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="#4CAF50"/>
+
+    <Button
+        android:id="@+id/ledOffButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Apagar LED"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#F44336"/>
+
+    <Button
+        android:id="@+id/connectButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Conectar dispositivo"
+        android:layout_marginTop="32dp"/>
+
+    <Button
+        android:id="@+id/disconnectButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Desconectar"
+        android:layout_marginTop="16dp"/>
+</LinearLayout>

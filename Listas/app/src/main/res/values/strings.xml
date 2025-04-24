@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Listas</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <!-- Texto para el título -->
+    <string name="lista">Lista de Elementos</string>
+
+    <!-- Lista de elementos -->
+    <string-array name="lista_elementos">
+        <item>Elemento 1</item>
+        <item>Elemento 2</item>
+        <item>Elemento 3</item>
+        <item>Elemento 4</item>
+        <item>Elemento 5</item>
+    </string-array>
+
+</resources>

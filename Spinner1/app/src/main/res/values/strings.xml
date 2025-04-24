@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Spinner de Nombres</string>
+    <string name="spinner_prompt">Seleccione un nombre</string>
+    <string name="max_nombres">Ya has ingresado 10 nombres</string>
+    <string name="action_settings">Settings</string>
+    <string name="spinner_title">Titulo</string>
+</resources>
