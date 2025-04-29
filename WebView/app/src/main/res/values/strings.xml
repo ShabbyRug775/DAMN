@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">WebView App</string>
+    <string name="opcion">Opciones:</string>
+    <string name="back">Atrás</string>
+    <string name="home">Inicio</string>
+    <string name="forward">Adelante</string>
+    <string name="url">URL:</string>
+
+    <string-array name="paginas_array">
+        <item>Planta Fractal</item>
+        <item>Alfombra de Sierpinski</item>
+    </string-array>
+</resources>
