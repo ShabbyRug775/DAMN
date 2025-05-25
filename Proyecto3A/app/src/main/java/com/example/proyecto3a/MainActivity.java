@@ -1,105 +1,423 @@
 package com.example.proyecto3a;
 
+import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
-import android.widget.*;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import android.hardware.usb.*;
-import com.hoho.android.usbserial.driver.*;
-import com.hoho.android.usbserial.util.SerialInputOutputManager;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
-    private TextView angleTextView;
-    private SeekBar angleSeekBar;
-    private UsbSerialDriver serialDriver;
-    private UsbDeviceConnection connection;
-    private OutputStream outputStream;
-    private UsbSerialPort outputPort;
+    // Views
+    private TextView angle1TextView, angle2TextView, verticalAngle1TextView, verticalAngle2TextView;
+    private SeekBar angle1SeekBar, angle2SeekBar, verticalAngle1SeekBar, verticalAngle2SeekBar;
+    private TextView connectionStatus;
+    private Button connectButton;
+
+    // Bluetooth
+    private BluetoothAdapter bluetoothAdapter;
+    private BluetoothSocket bluetoothSocket;
+    private ConnectedThread connectedThread;
+    private boolean isConnected = false;
+
+    // Variables miembro adicionales
+    private boolean seekBar2Enabled = false;
+    private boolean seekBar4Enabled = false;
+
+    // Constants
+    private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    private static final int REQUEST_ENABLE_BT = 1;
+    private static final int REQUEST_BLUETOOTH_PERMISSIONS = 2;
+    private static final int REQUEST_SELECT_DEVICE = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        angleTextView = findViewById(R.id.angleTextView);
-        angleSeekBar = findViewById(R.id.angleSeekBar);
-        angleSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
-            {
-                angleTextView.setText("Ángulo: " + progress);
-                sendAngleToArduino(progress); // Enviar el ángulo a Arduino
-            }
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-        setupUsbConnection();
-    }
-    private void setupUsbConnection() {
-        UsbManager usbManager = (UsbManager) getSystemService(USB_SERVICE);
-        UsbDevice device = null;
 
-        // Buscar el dispositivo Arduino por el Vendor ID
-        for (UsbDevice usbDevice : usbManager.getDeviceList().values()) {
-            if (usbDevice.getVendorId() == 0x2341) { // Vendor ID de Arduino
-                device = usbDevice;
-                break;
-            }
+        // Initialize Bluetooth Adapter
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter == null) {
+            showToast("Este dispositivo no soporta Bluetooth");
+            finish();
+            return;
         }
 
-        if (device != null) {
-            // Obtener el driver de serie para el dispositivo USB
-            UsbSerialDriver driver = UsbSerialProber.getDefaultProber().probeDevice(device);
-            if (driver != null && !driver.getPorts().isEmpty()) {
-                UsbSerialPort port = driver.getPorts().get(0); // Obtener el primer puerto de serie
+        // Initialize views
+        initViews();
 
-                // Establecer la conexión con el dispositivo USB
-                UsbDeviceConnection connection = usbManager.openDevice(driver.getDevice());
-                if (connection != null) {
-                    try {
-                        // Abrir el puerto y configurar parámetros
-                        port.open(connection);
-                        port.setParameters(
-                                9600, // Baud rate
-                                8,    // Data bits
-                                UsbSerialPort.STOPBITS_1,
-                                UsbSerialPort.PARITY_NONE
-                        );
+        // Set up listeners
+        setupListeners();
 
-                        // Guardar la referencia al puerto
-                        this.serialDriver = driver;
-                        this.connection = connection;
-                        this.outputPort = port; // Asignar el puerto de salida
+        // Check and request permissions
+        checkBluetoothPermissions();
+    }
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
+    private void initViews() {
+        angle1TextView = findViewById(R.id.angle1TextView);
+        angle1SeekBar = findViewById(R.id.angle1SeekBar);
+        angle2TextView = findViewById(R.id.angle2TextView);
+        angle2SeekBar = findViewById(R.id.angle2SeekBar);
+        verticalAngle1TextView = findViewById(R.id.verticalAngle1TextView);
+        verticalAngle1SeekBar = findViewById(R.id.verticalAngle1SeekBar);
+        verticalAngle2TextView = findViewById(R.id.verticalAngle2TextView);
+        verticalAngle2SeekBar = findViewById(R.id.verticalAngle2SeekBar);
+        connectButton = findViewById(R.id.connectButton);
+        connectionStatus = findViewById(R.id.connectionStatus);
+
+        // Disable controls until connected
+        angle1SeekBar.setEnabled(false);
+        angle2SeekBar.setEnabled(false);
+        verticalAngle1SeekBar.setEnabled(false);
+        verticalAngle2SeekBar.setEnabled(false);
+    }
+
+    private void setupListeners() {
+        // SeekBar 1 (Servo 1: 0-90°)
+        angle1SeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser && isConnected) {
+                    angle1TextView.setText("Servo 1: " + progress + "°");
+
+                    // Activar SeekBar 2 si alcanza 90°
+                    if (progress == 90 && !seekBar2Enabled) {
+                        seekBar2Enabled = true;
+                        angle2SeekBar.setEnabled(true);
+                        showToast("SeekBar 2 activada");
+                    } else if (progress < 90 && seekBar2Enabled) {
+                        seekBar2Enabled = false;
+                        angle2SeekBar.setEnabled(false);
+                        angle2SeekBar.setProgress(0); // Resetear a 0
+                        angle2TextView.setText("Servo 2: 0°");
+                        showToast("SeekBar 2 desactivada");
                     }
+
+                    sendAngles(progress, angle2SeekBar.getProgress(),
+                            verticalAngle1SeekBar.getProgress(),
+                            verticalAngle2SeekBar.getProgress());
+                }
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        verticalAngle1SeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser && isConnected) {
+                    int angle = progress + 90;
+                    verticalAngle1TextView.setText("Servo 1: " + angle + "°");
+
+                    // Activar SeekBar 4 si alcanza 90° (180° real)
+                    if (progress == 90 && !seekBar4Enabled) {
+                        seekBar4Enabled = true;
+                        verticalAngle2SeekBar.setEnabled(true);
+                        showToast("SeekBar 4 activada");
+                    } else if (progress < 90 && seekBar4Enabled) {
+                        seekBar4Enabled = false;
+                        verticalAngle2SeekBar.setEnabled(false);
+                        verticalAngle2SeekBar.setProgress(0); // Resetear a 0
+                        verticalAngle2TextView.setText("Servo 2: 90°");
+                        showToast("SeekBar 4 desactivada");
+                    }
+
+                    sendAngles(angle1SeekBar.getProgress(),
+                            angle2SeekBar.getProgress(),
+                            progress,
+                            verticalAngle2SeekBar.getProgress());
+                }
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        connectButton.setOnClickListener(v -> {
+            if (!isConnected) {
+                if (checkBluetoothPermissions()) {
+                    selectBluetoothDevice();
+                }
+            } else {
+                disconnect();
+            }
+        });
+    }
+
+    private void selectBluetoothDevice() {
+        if (bluetoothAdapter == null) {
+            showToast("Error de Bluetooth. Reinicie la aplicación.");
+            return;
+        }
+
+        if (!bluetoothAdapter.isEnabled()) {
+            enableBluetooth();
+        } else {
+            Intent intent = new Intent(this, DeviceListActivity.class);
+            startActivityForResult(intent, REQUEST_SELECT_DEVICE);
+        }
+    }
+
+    private boolean checkBluetoothPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                    != PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN)
+                            != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{
+                                Manifest.permission.BLUETOOTH_CONNECT,
+                                Manifest.permission.BLUETOOTH_SCAN
+                        },
+                        REQUEST_BLUETOOTH_PERMISSIONS
+                );
+                return false;
+            }
+        } else {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_BLUETOOTH_PERMISSIONS
+                );
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_BLUETOOTH_PERMISSIONS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                selectBluetoothDevice();
+            } else {
+                showToast("Permisos necesarios para usar Bluetooth");
+            }
+        }
+    }
+
+    private void enableBluetooth() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_ENABLE_BT) {
+            if (resultCode == RESULT_OK) {
+                selectBluetoothDevice();
+            } else {
+                showToast("Bluetooth debe estar activado");
+            }
+        } else if (requestCode == REQUEST_SELECT_DEVICE && resultCode == RESULT_OK) {
+            String address = data.getStringExtra(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+            connectToDevice(address);
+        }
+    }
+
+    private void connectToDevice(String deviceAddress) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        BluetoothDevice device = bluetoothAdapter.getRemoteDevice(deviceAddress);
+
+        new Thread(() -> {
+            try {
+                bluetoothSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
+                bluetoothSocket.connect();
+
+                runOnUiThread(() -> {
+                    connectedThread = new ConnectedThread(bluetoothSocket);
+                    connectedThread.start();
+                    isConnected = true;
+                    updateUI();
+                    showToast("Conectado a " + device.getName());
+                });
+            } catch (IOException e) {
+                runOnUiThread(() -> {
+                    showToast("Error al conectar: " + e.getMessage());
+                    isConnected = false;
+                    updateUI();
+                });
+            }
+        }).start();
+    }
+
+    private void disconnect() {
+        if (connectedThread != null) {
+            connectedThread.cancel();
+            connectedThread = null;
+        }
+
+        if (bluetoothSocket != null) {
+            try {
+                bluetoothSocket.close();
+            } catch (IOException e) {
+                Log.e("BT", "Error al cerrar socket", e);
+            }
+            bluetoothSocket = null;
+        }
+
+        isConnected = false;
+        updateUI();
+        showToast("Desconectado");
+    }
+
+    private void sendAngles(int angle1, int angle2, int angle3, int angle4) {
+        if (connectedThread != null) {
+            // Orden de los valores:
+            // angle1: SeekBar 1 (horizontal, 0-90°) para Servo 1
+            // angle2: SeekBar 2 (horizontal, 0-90°) para Servo 2
+            // angle3: SeekBar 3 (vertical, 0-90°) para Servo 1 (se suma 90 en Arduino)
+            // angle4: SeekBar 4 (vertical, 0-90°) para Servo 2 (se suma 90 en Arduino)
+            String data = angle1 + "," + angle2 + "," + angle3 + "," + angle4 + "\n";
+            connectedThread.write(data);
+        }
+    }
+
+    private void updateUI() {
+        runOnUiThread(() -> {
+            if (isConnected) {
+                connectionStatus.setText("Conectado");
+                connectionStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+                connectButton.setText("Desconectar");
+
+                // Habilitar siempre las SeekBars 1 y 3
+                angle1SeekBar.setEnabled(true);
+                verticalAngle1SeekBar.setEnabled(true);
+
+                // Habilitar SeekBars 2 y 4 solo si corresponden
+                angle2SeekBar.setEnabled(seekBar2Enabled);
+                verticalAngle2SeekBar.setEnabled(seekBar4Enabled);
+            } else {
+                connectionStatus.setText("Desconectado");
+                connectionStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                connectButton.setText("Conectar");
+                angle1SeekBar.setEnabled(false);
+                angle2SeekBar.setEnabled(false);
+                verticalAngle1SeekBar.setEnabled(false);
+                verticalAngle2SeekBar.setEnabled(false);
+
+                // Resetear estados al desconectar
+                seekBar2Enabled = false;
+                seekBar4Enabled = false;
+            }
+        });
+    }
+
+    private class ConnectedThread extends Thread {
+        private final BluetoothSocket mmSocket;
+        private final InputStream mmInStream;
+        private final OutputStream mmOutStream;
+
+        public ConnectedThread(BluetoothSocket socket) {
+            mmSocket = socket;
+            InputStream tmpIn = null;
+            OutputStream tmpOut = null;
+
+            try {
+                tmpIn = socket.getInputStream();
+                tmpOut = socket.getOutputStream();
+            } catch (IOException e) {
+                Log.e("BT", "Error al obtener streams", e);
+            }
+
+            mmInStream = tmpIn;
+            mmOutStream = tmpOut;
+        }
+
+        public void run() {
+            byte[] buffer = new byte[1024];
+            int bytes;
+
+            while (true) {
+                try {
+                    bytes = mmInStream.read(buffer);
+                    final String receivedData = new String(buffer, 0, bytes);
+                    Log.d("BT", "Datos recibidos: " + receivedData);
+
+                    runOnUiThread(() -> {
+                        if (receivedData.startsWith("OK")) {
+                            String[] parts = receivedData.split(",");
+                            if (parts.length >= 5) {
+                                angle1TextView.setText("Servo 1: " + parts[1] + "°");
+                                angle2TextView.setText("Servo 2: " + parts[2] + "°");
+                                verticalAngle1TextView.setText("Servo 3: " + parts[3] + "°");
+                                verticalAngle2TextView.setText("Servo 4: " + parts[4] + "°");
+                            }
+                        }
+                    });
+                } catch (IOException e) {
+                    runOnUiThread(() -> {
+                        showToast("Conexión perdida");
+                        disconnect();
+                    });
+                    break;
                 }
             }
         }
-    }
 
-    private void sendAngleToArduino(int angle) {
-        if (outputStream != null) {
+        public void write(String data) {
             try {
-                outputStream.write(String.valueOf(angle).getBytes()); // Enviar el ángulo como cadena
+                mmOutStream.write(data.getBytes());
+                Log.d("BT", "Datos enviados: " + data);
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e("BT", "Error al enviar datos", e);
+                runOnUiThread(() -> disconnect());
+            }
+        }
+
+        public void cancel() {
+            try {
+                mmSocket.close();
+            } catch (IOException e) {
+                Log.e("BT", "Error al cerrar socket", e);
             }
         }
     }
+
+    private void showToast(String message) {
+        new Handler(Looper.getMainLooper()).post(() ->
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show());
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (outputPort != null) {
-            try {
-                outputPort.close();  // Cerrar el puerto serial
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        disconnect();
     }
-
 }

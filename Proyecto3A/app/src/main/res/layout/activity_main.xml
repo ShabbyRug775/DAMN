@@ -2,17 +2,110 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
-    <TextView
-        android:id="@+id/angleTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ángulo: 0"
-        android:textSize="18sp" />
-    <SeekBar
-        android:id="@+id/angleSeekBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:max="180" /> <!-- Rango de 0 a 180 grados -->
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:gravity="center">
+
+    <!-- Columna izquierda (controles verticales) -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/verticalAngle1TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Servo 1: 90°"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp"/>
+
+        <SeekBar
+            android:id="@+id/verticalAngle1SeekBar"
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            android:max="90"
+            android:progress="0"
+            android:rotation="270"
+            android:layout_margin="16dp"
+            android:enabled="false"/>
+
+        <TextView
+            android:id="@+id/verticalAngle2TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Servo 2: 90°"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp"/>
+
+        <SeekBar
+            android:id="@+id/verticalAngle2SeekBar"
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            android:max="90"
+            android:progress="0"
+            android:rotation="270"
+            android:layout_margin="16dp"
+            android:enabled="false"/>
+    </LinearLayout>
+
+    <!-- Columna derecha (controles existentes) -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/connectionStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Desconectado"
+            android:textColor="#FF0000"
+            android:textSize="20sp"
+            android:layout_marginBottom="16dp"/>
+
+        <Button
+            android:id="@+id/connectButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Conectar"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- Controles para el Servo 1 -->
+        <TextView
+            android:id="@+id/angle1TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Servo 1: 0°"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp"/>
+
+        <SeekBar
+            android:id="@+id/angle1SeekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="90"
+            android:layout_marginBottom="24dp"
+            android:enabled="false"/>
+
+        <!-- Controles para el Servo 2 -->
+        <TextView
+            android:id="@+id/angle2TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Servo 2: 0°"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp"/>
+
+        <SeekBar
+            android:id="@+id/angle2SeekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="90"
+            android:enabled="false"/>
+    </LinearLayout>
 </LinearLayout>
