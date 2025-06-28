@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/scrollView1">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="top"
+            android:text="@string/hola"
+            android:textColor="@color/textcolor2" />
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="@string/imagen"
+            android:scaleType="center"
+            android:src="@drawable/guitarra" />
+        <Button
+            android:id="@+id/E1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/e1" /> <!-- 6ta cuerda -->
+
+        <Button
+            android:id="@+id/A1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/a1" /> <!-- 5ta cuerda -->
+
+        <Button
+            android:id="@+id/D1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/d1" /> <!-- 4ta cuerda -->
+
+        <Button
+            android:id="@+id/G1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/g1" /> <!-- 3ra cuerda -->
+
+        <Button
+            android:id="@+id/B1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/b1" /> <!-- 2da cuerda -->
+
+        <Button
+            android:id="@+id/E2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/e2" /> <!-- 1ra cuerda -->
+        <TextView
+            android:id="@+id/xtv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text=""
+            android:textColor="@color/textcolor"
+            android:textStyle="bold" />
+        <Button
+            android:id="@+id/xbns1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:text="@string/salir" />
+    </LinearLayout>
+</ScrollView>

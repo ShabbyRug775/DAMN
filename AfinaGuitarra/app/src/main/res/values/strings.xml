@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Afinador de guitarra</string>
+    <color name="bg">#ffffff</color>
+    <color name="textcolor">#ff0000</color>
+    <color name="textcolor2">#000000</color>
+    <string name="e1">E (6ta cuerda - Mi grave)</string>
+    <string name="a1">A (5ta cuerda - La)</string>
+    <string name="d1">D (4ta cuerda - Re)</string>
+    <string name="g1">G (3ra cuerda - Sol)</string>
+    <string name="b1">B (2da cuerda - Si)</string>
+    <string name="e2">E (1ra cuerda - Mi agudo)</string>
+    <string name="salir">Salir</string>
+    <string name="hola">Afinador de Guitarra</string>
+    <string name="imagen">Ilustración de guitarra</string>
+    <string name="action_settings">Settings</string>
+</resources>

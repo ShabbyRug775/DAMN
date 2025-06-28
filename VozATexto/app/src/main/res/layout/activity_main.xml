@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".MainActivity">
+
+    <!-- Título principal -->
+    <TextView
+        android:id="@+id/xtv1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/xtv1_titulo"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/xtv2"/>
+
+    <!-- Subtítulo -->
+    <TextView
+        android:id="@+id/xtv2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/xtv2_digitar"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/xtv1"
+        app:layout_constraintBottom_toTopOf="@+id/xet"/>
+
+    <!-- Campo de texto -->
+    <EditText
+        android:id="@+id/xet"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:ems="10"
+        android:gravity="center"
+        android:hint="@string/xet_hint"
+        android:inputType="text"
+        app:layout_constraintEnd_toStartOf="@+id/xib"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/xtv2"
+        android:layout_marginTop="16dp"/>
+
+    <!-- Botón de micrófono -->
+    <ImageButton
+        android:id="@+id/xib"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="16dp"
+        android:contentDescription="@string/mic_descripcion"
+        app:layout_constraintBottom_toBottomOf="@+id/xet"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/xet"
+        app:srcCompat="@drawable/baseline_mic_24" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

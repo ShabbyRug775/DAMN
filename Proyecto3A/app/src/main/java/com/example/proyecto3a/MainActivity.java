@@ -41,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean isConnected = false;
 
     // Variables miembro adicionales
-    private boolean seekBar2Enabled = false;
-    private boolean seekBar4Enabled = false;
+    private boolean verticalSeekBar1Enabled = false;
+    private boolean verticalSeekBar2Enabled = false;
 
     // Constants
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -97,20 +97,22 @@ public class MainActivity extends AppCompatActivity {
         angle1SeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser && isConnected) {
+                if (isConnected) {
                     angle1TextView.setText("Servo 1: " + progress + "°");
 
-                    // Activar SeekBar 2 si alcanza 90°
-                    if (progress == 90 && !seekBar2Enabled) {
-                        seekBar2Enabled = true;
-                        angle2SeekBar.setEnabled(true);
-                        showToast("SeekBar 2 activada");
-                    } else if (progress < 90 && seekBar2Enabled) {
-                        seekBar2Enabled = false;
-                        angle2SeekBar.setEnabled(false);
-                        angle2SeekBar.setProgress(0); // Resetear a 0
-                        angle2TextView.setText("Servo 2: 0°");
-                        showToast("SeekBar 2 desactivada");
+                    // Activar verticalAngle1SeekBar si alcanza 90°
+                    if (progress >= 90 && !verticalSeekBar1Enabled) {
+                        verticalSeekBar1Enabled = true;
+                        verticalAngle1SeekBar.setEnabled(true);
+                        verticalAngle1SeekBar.setProgress(0); // Resetear a 0
+                        verticalAngle1TextView.setText("Servo 1: 90°");
+                        showToast("Control vertical Servo 1 activado");
+                    } else if (progress < 90 && verticalSeekBar1Enabled) {
+                        verticalSeekBar1Enabled = false;
+                        verticalAngle1SeekBar.setEnabled(false);
+                        verticalAngle1SeekBar.setProgress(0);
+                        verticalAngle1TextView.setText("Servo 1: " + progress + "°");
+                        showToast("Control vertical Servo 1 desactivado");
                     }
 
                     sendAngles(progress, angle2SeekBar.getProgress(),
@@ -122,29 +124,29 @@ public class MainActivity extends AppCompatActivity {
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        verticalAngle1SeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        angle2SeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser && isConnected) {
-                    int angle = progress + 90;
-                    verticalAngle1TextView.setText("Servo 1: " + angle + "°");
+                if (isConnected) {
+                    angle2TextView.setText("Servo 2: " + progress + "°");
 
-                    // Activar SeekBar 4 si alcanza 90° (180° real)
-                    if (progress == 90 && !seekBar4Enabled) {
-                        seekBar4Enabled = true;
+                    // Activar verticalAngle2SeekBar si alcanza 90°
+                    if (progress >= 90 && !verticalSeekBar2Enabled) {
+                        verticalSeekBar2Enabled = true;
                         verticalAngle2SeekBar.setEnabled(true);
-                        showToast("SeekBar 4 activada");
-                    } else if (progress < 90 && seekBar4Enabled) {
-                        seekBar4Enabled = false;
-                        verticalAngle2SeekBar.setEnabled(false);
                         verticalAngle2SeekBar.setProgress(0); // Resetear a 0
                         verticalAngle2TextView.setText("Servo 2: 90°");
-                        showToast("SeekBar 4 desactivada");
+                        showToast("Control vertical Servo 2 activado");
+                    } else if (progress < 90 && verticalSeekBar2Enabled) {
+                        verticalSeekBar2Enabled = false;
+                        verticalAngle2SeekBar.setEnabled(false);
+                        verticalAngle2SeekBar.setProgress(0);
+                        verticalAngle2TextView.setText("Servo 2: " + progress + "°");
+                        showToast("Control vertical Servo 2 desactivado");
                     }
 
-                    sendAngles(angle1SeekBar.getProgress(),
-                            angle2SeekBar.getProgress(),
-                            progress,
+                    sendAngles(angle1SeekBar.getProgress(), progress,
+                            verticalAngle1SeekBar.getProgress(),
                             verticalAngle2SeekBar.getProgress());
                 }
             }
@@ -316,25 +318,31 @@ public class MainActivity extends AppCompatActivity {
                 connectionStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
                 connectButton.setText("Desconectar");
 
-                // Habilitar siempre las SeekBars 1 y 3
+                // Habilitar siempre las SeekBars horizontales
                 angle1SeekBar.setEnabled(true);
-                verticalAngle1SeekBar.setEnabled(true);
+                angle2SeekBar.setEnabled(true);
 
-                // Habilitar SeekBars 2 y 4 solo si corresponden
-                angle2SeekBar.setEnabled(seekBar2Enabled);
-                verticalAngle2SeekBar.setEnabled(seekBar4Enabled);
+                // Control vertical Servo 1
+                verticalSeekBar1Enabled = (angle1SeekBar.getProgress() >= 90);
+                verticalAngle1SeekBar.setEnabled(verticalSeekBar1Enabled);
+
+                // Control vertical Servo 2
+                verticalSeekBar2Enabled = (angle2SeekBar.getProgress() >= 90);
+                verticalAngle2SeekBar.setEnabled(verticalSeekBar2Enabled);
             } else {
                 connectionStatus.setText("Desconectado");
                 connectionStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
                 connectButton.setText("Conectar");
+
+                // Deshabilitar todos los controles
                 angle1SeekBar.setEnabled(false);
                 angle2SeekBar.setEnabled(false);
                 verticalAngle1SeekBar.setEnabled(false);
                 verticalAngle2SeekBar.setEnabled(false);
 
-                // Resetear estados al desconectar
-                seekBar2Enabled = false;
-                seekBar4Enabled = false;
+                // Resetear estados
+                verticalSeekBar1Enabled = false;
+                verticalSeekBar2Enabled = false;
             }
         });
     }

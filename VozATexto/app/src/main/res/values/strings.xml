@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MiVoz_a_texto</string>
+    <string name="xtv1_titulo">Prueba de Voz a Texto</string>
+    <string name="xtv2_digitar">Oprima el botón mientras habla...</string>
+    <string name="xet_hint">Texto del audio grabado...</string>
+    <string name="mic_descripcion">microfono</string>
+</resources>

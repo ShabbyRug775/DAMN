@@ -1,0 +1,58 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tvArea"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Registro de ciudades"
+        android:textSize="16sp"
+        android:gravity="center"/>
+
+    <EditText
+        android:id="@+id/etNomCiudad"
+        android:layout_width="378dp"
+        android:layout_height="1dp"
+        android:layout_weight="1"
+        android:hint="Nombre de la ciudad"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/etLatitud"
+        android:layout_width="377dp"
+        android:layout_height="1dp"
+        android:layout_weight="1"
+        android:hint="Latitud:"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/etLongitud"
+        android:layout_width="376dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:hint="Longitud:"
+        android:inputType="number" />
+
+    <Button
+        android:id="@+id/btnIrRegMapa"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Registro de ciudades"
+        android:enabled="true"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/btnIrListaCiudades"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Lista de ciudades"
+        android:enabled="true"
+        android:layout_marginTop="16dp"/>
+
+
+
+
+</LinearLayout>
