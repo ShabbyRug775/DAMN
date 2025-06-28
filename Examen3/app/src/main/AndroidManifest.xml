@@ -71,7 +71,7 @@
         <!-- API key de Google Maps -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAAdUw9EQbiB7vMJWDqbY1o2QO4_IUH6IM" />
+            android:value="credencial" />
 
     </application>
 
