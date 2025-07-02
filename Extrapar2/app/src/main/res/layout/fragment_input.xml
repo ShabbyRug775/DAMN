@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Tiempo -->
+    <TextView
+        android:id="@+id/tvTiempoValor"
+        android:text="Tiempo: 0 s"
+        android:textSize="16sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <SeekBar
+        android:id="@+id/seekTiempo"
+        android:max="20"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Amplitud -->
+    <TextView
+        android:id="@+id/tvAmplitudValor"
+        android:text="Amplitud: 0"
+        android:textSize="16sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"/>
+
+    <SeekBar
+        android:id="@+id/seekAmplitud"
+        android:max="100"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Botón Generar -->
+    <Button
+        android:id="@+id/btnGenerar"
+        android:text="Generar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"/>
+</LinearLayout>
